@@ -17,29 +17,25 @@ export class LoginController {
         let r = await getRepository(Account).createQueryBuilder('account')
             .where(request.body)
             .getOne();
+        var ret = {}
         if (r) {
-            var ret = {}
-            if (r) {
-                if (r.status != 1) {
-                    ret = {
-                        code: -1,
-                        msg: '账号状态异常'
-                    }
-                }
-                ret = {
-                    code: 200,
-                    msg: '登录成功',
-                    data: setCode(r)
-                }
-            } else {
+            if (r.status != 1) {
                 ret = {
                     code: -1,
-                    msg: '账号密码错误'
+                    msg: '账号状态异常'
                 }
             }
-            return ret
-        }else{
-            next()
+            ret = {
+                code: 200,
+                msg: '登录成功',
+                data: setCode(r)
+            }
+        } else {
+            ret = {
+                code: -1,
+                msg: '账号密码错误'
+            }
         }
+        return ret
     }
 }

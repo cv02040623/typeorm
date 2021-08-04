@@ -3,10 +3,10 @@ import { createConnection } from "typeorm";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
-import logger from 'morgan';
 import Routes from './routes';
 import { jwtAuth } from './utils/jwt';
 const fs = require('fs');
+const logger=require('morgan');
 const path = require('path');
 
 
@@ -22,7 +22,7 @@ createConnection().then(async connection => {
     var logDirectory = __dirname + '/log';
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
     var accessLogStream = fs.createWriteStream(path.join(__dirname, '/log/request.log'), { flags: 'a', encoding: 'utf8' });
-    // app.use(logger('combined', { stream: accessLogStream }));
+    app.use(logger('combined', { stream: accessLogStream }));
 
     // token 设置
     app.use(jwtAuth);

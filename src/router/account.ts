@@ -3,6 +3,7 @@ import { AccountController } from "../controller/AccountController";
 import { transformRouter } from '../utils/index';
 const app = Router();
 
+//路由二级分发
 export const Routes = [{
     method: "get",
     route: "/users",
