@@ -1,4 +1,4 @@
-import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn, JoinTable } from 'typeorm';
 import { Length, MaxLength, IsNotEmpty, IsOptional } from 'class-validator';
 
 
@@ -17,7 +17,7 @@ export class Role {
     @Column({ default: '' })
     desc: string;
 
-    @Column({comment:'创建人'})
+    @Column({ comment: '创建人' })
     @IsOptional()
     create_main: string;
 
@@ -32,7 +32,7 @@ export class Role {
     @CreateDateColumn()
     create_time: Date
 
-    @Column({ default: null })
+    @Column({ default: '' })
     @IsOptional()
     author_id: string
 }
