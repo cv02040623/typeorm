@@ -28,7 +28,8 @@ export class LoginController {
             ret = {
                 code: 200,
                 msg: '登录成功',
-                data: setCode(r)
+                token:setCode(r),
+                data: r
             }
         } else {
             ret = {

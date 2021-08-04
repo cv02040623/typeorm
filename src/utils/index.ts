@@ -48,11 +48,15 @@ const getCurrentTime = () => {
 
 
 //省略对象中不需要的字段
-const _fobj = (r: Object, a: string[]) => {
+const _fobj = (r: Object, a?: string[]) => {
     let element = {}
     for (const key in r) {
-        if (a.includes(key) && r[key] != '' && r[key] != null && r[key] != undefined) {
-            element[key] = r[key];
+        if (r[key] != '' && r[key] != null && r[key] != undefined) {
+            if (a) {
+                a.includes(key) && (element[key] = r[key])
+            } else {
+                element[key] = r[key]
+            }
         }
     }
     return element

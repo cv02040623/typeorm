@@ -3,6 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import { Account } from "../entity/Account";
 import { validate } from 'class-validator';
 import { _fobj } from "../utils";
+import { Encrypt, Decrypt } from "../utils/md5";
+const random = require('string-random');
 
 export class AccountController {
 
@@ -10,20 +12,18 @@ export class AccountController {
 
     async all(request: Request, response: Response, next: NextFunction) {
         let { skip, take } = request.query;
-        let sql = _fobj(request.query as Object, ['username', 'status', 'create_time'])
+        let pam = this.userRepository.create(request.query);
+        let sql = _fobj(pam as Object)
         return getRepository(Account)
             .createQueryBuilder('account')
-            .where({ ...sql })
-            .skip((skip * 1 || 0) * (take * 1 || 10))
+            .where(sql)
+            .skip(((skip - 1) * 1 || 0) * (take * 1 || 10))
             .take(take * 1 || 10)
             .getManyAndCount()
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
-        let account = new Account();
-        for (const key in request.body) {
-            account[key] = request.body[key]
-        }
+        let account = this.userRepository.create(request.body)
         const errors = await validate(account);
         if (errors && errors.length > 0) {
             return {
@@ -34,17 +34,15 @@ export class AccountController {
             return this.userRepository
                 .createQueryBuilder()
                 .update(Account)
-                .set(request.body)
-                .where('id=:id', { ...request.body })
+                .set(account as {})
+                .where('id=:id', { ...account })
                 .execute()
         }
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        let account = new Account();
-        for (const key in request.body) {
-            account[key] = request.body[key]
-        }
+        let ranstr = random(6, { letters: 'qwertyuiopasdfghjklzxcvbnm' });
+        let account = this.userRepository.create(request.body);
         const errors = await validate(account);
         if (errors && errors.length > 0) {
             return {
@@ -56,7 +54,7 @@ export class AccountController {
                 .createQueryBuilder()
                 .insert()
                 .into(Account)
-                .values(request.body)
+                .values({ ...request.body, password: Encrypt(ranstr) })
                 .execute()
         }
     }
