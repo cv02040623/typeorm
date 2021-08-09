@@ -1,12 +1,9 @@
-import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Length, MaxLength, IsNotEmpty, IsOptional } from 'class-validator';
-import { type } from 'os';
-import { Role } from './Role';
-
 
 
 @Entity()
-export class Account {
+export class Customers {
 
     @PrimaryGeneratedColumn()
     id: Number;
@@ -14,7 +11,10 @@ export class Account {
     @Column({ unique: true })
     @Length(1, 10, { message: '长度限制1~10位' })
     @IsNotEmpty({ message: '用户名称不能为空' })
-    username: string;
+    clientName: string;
+
+    @Column({default:'ss'})
+    logoPath: string;
 
     @Column({ unique: true })
     @IsNotEmpty({ message: '账号不能为空' })
@@ -30,9 +30,6 @@ export class Account {
     @IsNotEmpty({ message: '联系方式不能为空' })
     @Length(11, 11, { message: '联系方式为11位' })
     phone: string
-
-    @Column({ default: 1 })
-    sex: number
 
     @Column({ default: '' })
     @IsOptional()
@@ -52,7 +49,6 @@ export class Account {
     @CreateDateColumn()
     create_time: Date
 
-    @ManyToOne(type => Role, role => role.accounts)
-    @JoinColumn()
-    rid: Role
+    // @OneToMany(type => sho, role => role.accounts)
+    // shopId: Role
 }

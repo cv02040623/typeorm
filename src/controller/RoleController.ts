@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, createQueryBuilder } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { Role } from "../entity/Role";
 import { validate } from 'class-validator';
@@ -14,13 +14,20 @@ export class RoleController {
         let { skip, take } = request.params;
         let pam = this.Repository.create(request.query);
         let sql = _fobj(pam as Object);
-        return getRepository(Role)
-            .createQueryBuilder('role')
-            .leftJoinAndSelect(Account,'account','account.id=role.create_main')
+        let [data, count] = await createQueryBuilder(Role, "role")
+            .leftJoinAndMapOne('role.createByMan', Account, "account", "account.id=role.createById")
             .where(sql)
             .skip(((skip - 1) * 1 || 0) * (take * 1 || 10))
             .take(take * 1 || 10)
-            .getManyAndCount()
+            .getManyAndCount();
+        data = data.map(i => {
+            i['createByMan'] = {
+                name: i['createByMan']['username'],
+                id: i['createByMan']['id']
+            }
+            return i
+        })
+        return [data, count]
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
@@ -43,7 +50,7 @@ export class RoleController {
 
     async save(request: Request, response: Response, next: NextFunction) {
         //获取创建人信息
-        let createMain = decode(request)
+        let createMan = decode(request)
         let role = this.Repository.create(request.body);
         let sql = _fobj(role);
         const errors = await validate(role);
@@ -57,26 +64,27 @@ export class RoleController {
                 .createQueryBuilder()
                 .insert()
                 .into(Role)
-                .values({ ...sql, create_main: createMain['id'] })
+                .values({ ...sql, createById: createMan['id'] })
                 .execute()
         }
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
-        // let r = await this.Repository.find({ pid: request.params.id });
-        // if (r && r.length != 0) {
-        //     return {
-        //         code: -1,
-        //         msg: '当前权限存在子集'
-        //     }
-        // } else {
-        //     return this.Repository
-        //         .createQueryBuilder()
-        //         .delete()
-        //         .from(Role)
-        //         .where("id = :id", { ...request.params })
-        //         .execute()
-        // }
+        //判断当前角色是否被绑定
+        let r = await createQueryBuilder(Account, 'account').where('account.rid=:id', { ...request.params }).getOne();
+        if (r) {
+            return {
+                code: -1,
+                msg: '当前角色已经被绑定'
+            }
+        } else {
+            return this.Repository
+                .createQueryBuilder()
+                .delete()
+                .from(Role)
+                .where("id = :id", { ...request.params })
+                .execute()
+        }
     }
 
 }

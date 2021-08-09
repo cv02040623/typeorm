@@ -16,6 +16,7 @@ var upload = function (path, req, res, next) {
         var textObj = {};
         var imgObj = {};
         form.parse(req, function (err, fields, files) {
+            console.log(files)
             if (err) {
                 console.log(err);
             }

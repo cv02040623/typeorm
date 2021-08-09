@@ -1,5 +1,6 @@
-import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn, JoinTable } from 'typeorm';
+import { Column, PrimaryGeneratedColumn, Entity, CreateDateColumn, UpdateDateColumn, JoinTable, OneToMany } from 'typeorm';
 import { Length, MaxLength, IsNotEmpty, IsOptional } from 'class-validator';
+import { Account } from './Account';
 
 
 
@@ -19,7 +20,7 @@ export class Role {
 
     @Column({ comment: '创建人' })
     @IsOptional()
-    create_main: string;
+    createById: Number;
 
     @Column({ default: 1 })
     status: Number
@@ -34,5 +35,8 @@ export class Role {
 
     @Column({ default: '' })
     @IsOptional()
-    author_id: string
+    author_id: string;
+
+    @OneToMany(type => Account, account => account.rid)
+    accounts:Account[]
 }

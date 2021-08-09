@@ -35,7 +35,7 @@ const jwtAuth = expressJwt({
     // 除了这个地址，其他的URL都需要验证
     path: [
         '/admin/login',
-        '/getToken/adminLogin',
+        '/admin/upload',
         '/appVersion/upload',
         '/appVersion/download',
         /^\/public\/.*/,
